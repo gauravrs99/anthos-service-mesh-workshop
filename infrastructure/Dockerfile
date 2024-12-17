@@ -13,7 +13,7 @@
 # limitations under the License.
 
 FROM gcr.io/google.com/cloudsdktool/cloud-sdk:alpine
-RUN apk add -u jq python3 openssl
+RUN apk add --no-cache jq python3 openssl
 
 ENV TERRAFORM_VERSION=0.12.19
 ENV KUBECTL_VERSION=1.16.1
