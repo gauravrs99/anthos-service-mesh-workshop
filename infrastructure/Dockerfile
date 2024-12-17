@@ -12,28 +12,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# Base image
 FROM gcr.io/google.com/cloudsdktool/cloud-sdk:alpine
-RUN apk add --no-cache jq python3 openssl
 
-ENV TERRAFORM_VERSION=0.12.19
-ENV KUBECTL_VERSION=1.16.1
-ENV KUSTOMIZE_VERSION=3.5.3
-ENV TF_PLUGIN_CACHE_DIR /workspace/.terraform.d/plugin-cache
+# Install required packages
+RUN apk add --no-cache jq python3 openssl curl unzip
 
-# Install terraform
-RUN wget https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
+# Define versions
+ENV TERRAFORM_VERSION=1.5.7
+ENV KUBECTL_VERSION=1.27.0
+ENV KUSTOMIZE_VERSION=5.0.0
+ENV TF_PLUGIN_CACHE_DIR=/workspace/.terraform.d/plugin-cache
+
+# Install Terraform
+RUN wget --no-check-certificate https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
     unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
-    chmod +x terraform && \
-    mv terraform /usr/local/bin && \
+    chmod +x terraform && mv terraform /usr/local/bin/ && \
     rm -rf terraform_${TERRAFORM_VERSION}_linux_amd64.zip
 
 # Install kubectl
-RUN wget https://storage.googleapis.com/kubernetes-release/release/v${KUBECTL_VERSION}/bin/linux/amd64/kubectl && \
-    chmod +x kubectl && \
-    mv kubectl /usr/local/bin/
+RUN wget --no-check-certificate https://dl.k8s.io/release/v${KUBECTL_VERSION}/bin/linux/amd64/kubectl && \
+    chmod +x kubectl && mv kubectl /usr/local/bin/
 
 # Install kustomize
-RUN wget -O- https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv${KUSTOMIZE_VERSION}/kustomize_v${KUSTOMIZE_VERSION}_linux_amd64.tar.gz | \
-    tar zxvf - kustomize && \
-    chmod +x kustomize && \
-    mv kustomize /usr/local/bin
+RUN curl -LO https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize/v${KUSTOMIZE_VERSION}/kustomize_v${KUSTOMIZE_VERSION}_linux_amd64.tar.gz && \
+    tar -xzf kustomize_v${KUSTOMIZE_VERSION}_linux_amd64.tar.gz && \
+    chmod +x kustomize && mv kustomize /usr/local/bin/ && \
+    rm -rf kustomize_v${KUSTOMIZE_VERSION}_linux_amd64.tar.gz
